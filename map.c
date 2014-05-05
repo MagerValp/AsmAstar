@@ -41,10 +41,6 @@ void map_init(void) {
 }
 
 
-uint8_t map_get(uint8_t x, uint8_t y) {
-    return map_line[y][x];
-}
-
 void map_set(uint8_t x, uint8_t y, uint8_t t) {
     map_line[y][x] = t;
 }
