@@ -96,9 +96,7 @@ bool is_passable(uint8_t x, uint8_t y) {
     return false;
 }
 
-bool not_visited(uint8_t x, uint8_t y) {
-    return came_from[y * MAP_WIDTH + x] == NOT_VISITED;
-}
+#define not_visited(X, Y) came_from[(Y) * MAP_WIDTH + (X)] == NOT_VISITED
 
 
 uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t new_dest_x, uint8_t new_dest_y) {
