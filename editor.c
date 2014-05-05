@@ -48,13 +48,13 @@ void editor_init(void) {
     revers(1);
     cputsxy(25, 0, " play with a* ");
     revers(0);
-    cputsxy(25, 2, "crsr to move");
-    cputsxy(25, 3, "space boulder");
+    cputsxy(25, 2, "crsr: move");
+    cputsxy(25, 3, "space: boulder");
     cputsxy(25, 4, "1: select A");
     cputsxy(25, 5, "2: select S");
     cputsxy(25, 6, "3: select X");
     cputsxy(25, 7, "4: select Z");
-    cputsxy(25, 8, "return to find");
+    cputsxy(25, 8, "return: find");
     
     cursor_x = MAP_WIDTH / 2;
     cursor_y = MAP_HEIGHT / 2;
