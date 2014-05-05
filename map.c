@@ -37,7 +37,11 @@ void map_init(void) {
     for (y = 0; y < MAP_HEIGHT; ++y) {
         map_line[y] = &map[y * MAP_WIDTH];
     }
-    //memset(map, 0, MAP_WIDTH * MAP_HEIGHT);
+}
+
+
+void map_clear(void) {
+    memset(map, 0, MAP_WIDTH * MAP_HEIGHT);
 }
 
 

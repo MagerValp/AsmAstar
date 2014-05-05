@@ -220,6 +220,11 @@ void editor_main(void) {
             //cursor_dir = CURS_LEFT;
             break;
             
+            case 147:
+            map_clear();
+            editor_draw_map();
+            break;
+            
             case ' ':
             if (actor_at(cursor_x, cursor_y) == ACTOR_NONE) {
                 map_set(cursor_x, cursor_y, map_get(cursor_x, cursor_y) ^ 1);
