@@ -25,6 +25,7 @@ OBJS = \
 	openqueue.o \
 	map.o \
 	map_get.o \
+	map_distance.o \
 	actor.o \
 	path.o \
 	editor.o
