@@ -1,6 +1,5 @@
 #include <string.h>
 #include <stdbool.h>
-#include <conio.h>
 #include "openqueue.h"
 #include "map.h"
 #include "actor.h"
@@ -54,15 +53,11 @@ uint8_t reconstruct_path(uint8_t start_x, uint8_t start_y) {
     }
 }
 
-void __fastcall__ path_add_node(uint8_t x, uint8_t y, uint8_t cost, uint8_t dir) {
-    if (path_set_queued_cost_if_lower(x, y, cost)) { 
-        path_set_came_from(x, y, dir);
-        openqueue_push(map_distance(x, y),
-                       cost,
-                       x,
-                       y);
+#define path_add_node(X, Y, C, D) \
+    if (path_set_queued_cost_if_lower((X), (Y), (C))) { \
+        path_set_came_from((X), (Y), (D)); \
+        openqueue_push(map_distance((X), (Y)), (C), (X), (Y)); \
     }
-}
 
 uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t new_dest_x, uint8_t new_dest_y) {
     static uint8_t x, y, cost;
@@ -149,9 +144,6 @@ uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t new_dest_x, uint8_t 
                 path_add_node(x, y, cost, SOUTHEAST);
             }
         }
-        
-        gotoxy(0, 0);
-        cprintf("open nodes: %d ", openqueue_size);
         
         // Remove the top node from the queue and move on to the next.
         openqueue_delete();
