@@ -19,6 +19,7 @@ void path_clear_queued_cost(void);
 uint8_t __fastcall__ path_get_queued_cost(uint8_t x, uint8_t y);
 uint8_t __fastcall__ path_set_queued_cost_if_lower(uint8_t x, uint8_t y, uint8_t cost);
 
+void __fastcall__ path_add_node(uint8_t x, uint8_t y, uint8_t cost, uint8_t dir);
 uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t dest_x, uint8_t dest_y);
 
 

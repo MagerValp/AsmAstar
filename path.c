@@ -54,6 +54,16 @@ uint8_t reconstruct_path(uint8_t start_x, uint8_t start_y) {
     }
 }
 
+void __fastcall__ path_add_node(uint8_t x, uint8_t y, uint8_t cost, uint8_t dir) {
+    if (path_set_queued_cost_if_lower(x, y, cost)) { 
+        path_set_came_from(x, y, dir);
+        openqueue_push(map_distance(x, y),
+                       cost,
+                       x,
+                       y);
+    }
+}
+
 uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t new_dest_x, uint8_t new_dest_y) {
     static uint8_t x, y, cost;
     static uint8_t passable_north, passable_east, passable_south, passable_west;
@@ -68,14 +78,12 @@ uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t new_dest_x, uint8_t 
     
     // Start off the open queue with the start node.
     openqueue_init(path_max_cost);
-    openqueue_push(map_distance(start_x, start_y), 0, start_x, start_y, NOT_VISITED);
+    openqueue_push(map_distance(start_x, start_y), 0, start_x, start_y);
     // Loop as long as there are nodes to explore.
     while (openqueue_size) {
         // Ignore node if we've already visited with a lower cost.
         cost = path_get_queued_cost(openqueue_xpos, openqueue_ypos);
         if (openqueue_cost <= cost) {
-            // Mark node as visited with the direction from which we came.
-            path_set_came_from(openqueue_xpos, openqueue_ypos, openqueue_dir);
             // Check if we've arrived at our destination.
             if (openqueue_xpos == map_dest_x && openqueue_ypos == map_dest_y) {
                 // Store the final path cost.
@@ -94,49 +102,25 @@ uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t new_dest_x, uint8_t 
             y = openqueue_ypos - 1;
             passable_north = map_is_passable(openqueue_xpos, y);
             if (passable_north) {
-                if (path_set_queued_cost_if_lower(openqueue_xpos, y, cost)) { 
-                    openqueue_push(map_distance(openqueue_xpos, y),
-                                   cost,
-                                   openqueue_xpos,
-                                   y,
-                                   SOUTH);
-                }
+                path_add_node(openqueue_xpos, y, cost, SOUTH);
             }
             // South.
             y = openqueue_ypos + 1;
             passable_south = map_is_passable(openqueue_xpos, y);
             if (passable_south) {
-                if (path_set_queued_cost_if_lower(openqueue_xpos, y, cost)) { 
-                    openqueue_push(map_distance(openqueue_xpos, y),
-                                   cost,
-                                   openqueue_xpos,
-                                   y,
-                                   NORTH);
-                }
+                path_add_node(openqueue_xpos, y, cost, NORTH);
             }
             // West.
             x = openqueue_xpos - 1;
             passable_west = map_is_passable(x, openqueue_ypos);
             if (passable_west) {
-                if (path_set_queued_cost_if_lower(x, openqueue_ypos, cost)) { 
-                    openqueue_push(map_distance(x, openqueue_ypos),
-                                   cost,
-                                   x,
-                                   openqueue_ypos,
-                                   EAST);
-                }
+                path_add_node(x, openqueue_ypos, cost, EAST);
             }
             // East.
             x = openqueue_xpos + 1;
             passable_east = map_is_passable(x, openqueue_ypos);
             if (passable_east) {
-                if (path_set_queued_cost_if_lower(x, openqueue_ypos, cost)) { 
-                    openqueue_push(map_distance(x, openqueue_ypos),
-                                   cost,
-                                   x,
-                                   openqueue_ypos,
-                                   WEST);
-                }
+                path_add_node(x, openqueue_ypos, cost, WEST);
             }
             
             // Check which diagonal neightbors should be added to the open
@@ -147,46 +131,22 @@ uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t new_dest_x, uint8_t 
             // Northeast.
             y = openqueue_ypos - 1;
             if ((passable_north || passable_east) && map_is_passable(x, y)) {
-                if (path_set_queued_cost_if_lower(x, y, cost)) { 
-                    openqueue_push(map_distance(x, y),
-                                   cost,
-                                   x,
-                                   y,
-                                   SOUTHWEST);
-                }
+                path_add_node(x, y, cost, SOUTHWEST);
             }
             // Southeast.
             y = openqueue_ypos + 1;
             if ((passable_south || passable_east) && map_is_passable(x, y)) {
-                if (path_set_queued_cost_if_lower(x, y, cost)) { 
-                    openqueue_push(map_distance(x, y),
-                                   cost,
-                                   x,
-                                   y,
-                                   NORTHWEST);
-                }
+                path_add_node(x, y, cost, NORTHWEST);
             }
             // Southwest.
             x = openqueue_xpos - 1;
             if ((passable_south || passable_west) && map_is_passable(x, y)) {
-                if (path_set_queued_cost_if_lower(x, y, cost)) { 
-                    openqueue_push(map_distance(x, y),
-                                   cost,
-                                   x,
-                                   y,
-                                   NORTHEAST);
-                }
+                path_add_node(x, y, cost, NORTHEAST);
             }
             // Northwest.
             y = openqueue_ypos - 1;
             if ((passable_north || passable_west) && map_is_passable(x, y)) {
-                if (path_set_queued_cost_if_lower(x, y, cost)) { 
-                    openqueue_push(map_distance(x, y),
-                                   cost,
-                                   x,
-                                   y,
-                                   SOUTHEAST);
-                }
+                path_add_node(x, y, cost, SOUTHEAST);
             }
         }
         

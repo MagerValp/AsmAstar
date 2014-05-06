@@ -8,10 +8,9 @@
 	.export _openqueue_cost
 	.export _openqueue_xpos
 	.export _openqueue_ypos
-	.export _openqueue_dir
 	
 	.importzp sp
-	.import incsp4
+	.import incsp3
 	
 	
 	.bss
@@ -22,7 +21,6 @@ prio:		.res 128
 cost:		.res 128
 xpos:		.res 128
 ypos:		.res 128
-dir:		.res 128
 size:		.res 1
 max_cost:	.res 1
 
@@ -31,7 +29,6 @@ _openqueue_size = 	size
 _openqueue_cost = 	cost
 _openqueue_xpos = 	xpos
 _openqueue_ypos = 	ypos
-_openqueue_dir = 	dir
 
 
 	.code
@@ -79,14 +76,6 @@ _openqueue_init:
 @tempy = * + 1
 	lda #$5e
 	sta ypos,y
-
-	lda dir,x
-	sta @tempd
-	lda dir,y
-	sta dir,x
-@tempd = * + 1
-	lda #$5e
-	sta dir,y
   .endmacro
 
 ; Push a value into the tree.
@@ -98,11 +87,8 @@ _openqueue_push:
 	dex
 	stx size
 :	; Push arguments to the bottoms of the parallel heaps.
-	sta dir,x
-	ldy #0
-	lda (sp),y
 	sta ypos,x
-	iny
+	ldy #0
 	lda (sp),y
 	sta xpos,x
 	iny
@@ -134,7 +120,7 @@ _openqueue_push:
 	bcc :+
 @done:
 	dec $d020
-	jmp incsp4
+	jmp incsp3
 :	; Swap X with its parent Y.
 	swap
 	; Set X to point at its parent.
@@ -164,8 +150,6 @@ _openqueue_delete:
 	sta xpos
 	lda ypos,y
 	sta ypos
-	lda dir,y
-	sta dir
 	; Heapify the tree.
 	ldx #0
 	stx @current_node

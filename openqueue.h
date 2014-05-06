@@ -9,14 +9,12 @@ extern uint8_t openqueue_size;
 extern uint8_t openqueue_cost;
 extern uint8_t openqueue_xpos;
 extern uint8_t openqueue_ypos;
-extern uint8_t openqueue_dir;
 
 void __fastcall__ openqueue_init(uint8_t max_cost);
 void __fastcall__ openqueue_push(uint8_t estimate,
                                  uint8_t cost,
                                  uint8_t xpos,
-                                 uint8_t ypos,
-                                 uint8_t dir);
+                                 uint8_t ypos);
 void openqueue_delete(void);
 
 
