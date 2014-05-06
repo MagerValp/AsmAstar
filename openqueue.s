@@ -91,6 +91,7 @@ _openqueue_init:
 
 ; Push a value into the tree.
 _openqueue_push:
+	inc $d020
 	ldx size
 	; If the heap is full, overwrite the last node.
 	bpl :+
@@ -132,6 +133,7 @@ _openqueue_push:
 	cmp prio,y
 	bcc :+
 @done:
+	dec $d020
 	jmp incsp4
 :	; Swap X with its parent Y.
 	swap
@@ -148,6 +150,7 @@ _openqueue_push:
 
 ; Pop the lowest value from the tree.
 _openqueue_delete:
+	dec $d020
 	dec size
 	beq @done
 	ldy size
@@ -177,6 +180,7 @@ _openqueue_delete:
 	cpy size
 	bcc :+
 @done:
+	inc $d020
 	rts
 :	; Check if left child is smaller.
 	lda prio,y
