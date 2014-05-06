@@ -28,6 +28,7 @@ OBJS = \
 	map_distance.o \
 	actor.o \
 	path.o \
+	path_came_from.o \
 	editor.o
 
 

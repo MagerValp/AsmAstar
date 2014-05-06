@@ -7,14 +7,11 @@
 #include "path.h"
 
 
-#define OPENQUEUE_COLOR 9
-
 uint8_t path_x[PATH_MAX];
 uint8_t path_y[PATH_MAX];
 uint8_t path_cost;
 uint8_t path_max_cost = 90;
 
-static uint8_t came_from[MAP_WIDTH * MAP_HEIGHT];
 static uint8_t queued_cost[MAP_WIDTH * MAP_HEIGHT];
 
 enum {
@@ -50,44 +47,13 @@ uint8_t reconstruct_path(uint8_t start_x, uint8_t start_y) {
         path_x[len] = x;
         path_y[len] = y;
         ++len;
-        dir = came_from[y * MAP_WIDTH + x];
+        dir = path_get_came_from(x, y);
         x += dx[dir];
         y += dy[dir];
         if (x == start_x && y == start_y) {
             return len;
         }
     }
-}
-
-void set_came_from(uint8_t x, uint8_t y, uint8_t from) {
-    gotoxy(x + 2, y + 2);
-    switch (from) {
-        case NORTH:
-        cputc(94);
-        break;
-        case EAST:
-        cputc('>');
-        break;
-        case SOUTH:
-        cputc('v');
-        break;
-        case WEST:
-        cputc('<');
-        break;
-        case NORTHEAST:
-        cputc(0xae);
-        break;
-        case SOUTHEAST:
-        cputc(0xbd);
-        break;
-        case SOUTHWEST:
-        cputc(0xad);
-        break;
-        case NORTHWEST:
-        cputc(0xb0);
-        break;
-    }
-    came_from[y * MAP_WIDTH + x] = from;
 }
 
 bool is_passable(uint8_t x, uint8_t y) {
@@ -98,8 +64,6 @@ bool is_passable(uint8_t x, uint8_t y) {
     }
     return false;
 }
-
-#define not_visited(X, Y) came_from[(Y) * MAP_WIDTH + (X)] == NOT_VISITED
 
 #define get_queued_cost(X, Y) queued_cost[(Y) * MAP_WIDTH + (X)]
 #define set_queued_cost(X, Y, C) queued_cost[(Y) * MAP_WIDTH + (X)] = (C)
@@ -112,10 +76,9 @@ uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t new_dest_x, uint8_t 
     map_dest_x = new_dest_x;
     map_dest_y = new_dest_y;
     
-    memset(came_from, NOT_VISITED, sizeof(came_from));
     memset(queued_cost, 255, sizeof(queued_cost));
-    
-    textcolor(OPENQUEUE_COLOR);
+    // Clear the visitation and cost buffers.
+    path_clear_came_from();
     
     // Start off the open queue with the start node.
     openqueue_init(path_max_cost);
@@ -123,9 +86,9 @@ uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t new_dest_x, uint8_t 
     // Loop as long as there are nodes to explore.
     while (openqueue_size) {
         // Avoid visiting nodes twice.
-        if (not_visited(openqueue_xpos, openqueue_ypos)) {
-            set_came_from(openqueue_xpos, openqueue_ypos, openqueue_dir);
+        if (path_get_came_from(openqueue_xpos, openqueue_ypos) == NOT_VISITED) {
             // Mark node as visited with the direction from which we came.
+            path_set_came_from(openqueue_xpos, openqueue_ypos, openqueue_dir);
             // Check if we've arrived at our destination.
             if (openqueue_xpos == map_dest_x && openqueue_ypos == map_dest_y) {
                 // Store the final path cost.
