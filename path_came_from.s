@@ -11,6 +11,7 @@
 
 
 OPENQUEUE_COLOR =	9
+PLOT_CHARS =		1
 
 
 	.bss
@@ -64,12 +65,15 @@ _path_get_came_from:
 ; void __fastcall__ path_set_came_from(uint8_t x, uint8_t y, uint8_t from);
 _path_set_came_from:
 	sta @dir
+  .ifdef PLOT_CHARS
 	tax
 	lda char,x
 	sta @c
+  .endif
 	
 	jsr popax
 	tay
+  .ifdef PLOT_CHARS
 	lda screen_line_lo,y
 	sta @screen_ptr
 	lda screen_line_hi,y
@@ -85,6 +89,7 @@ _path_set_came_from:
 	lda #OPENQUEUE_COLOR
 @color_ptr = * + 1
 	sta $5e1f,x
+  .endif
 	
 	lda came_from_lo,y
 	sta @came_ptr
