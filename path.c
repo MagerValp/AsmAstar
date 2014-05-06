@@ -113,18 +113,6 @@ uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t new_dest_x, uint8_t 
                                    NORTH);
                 }
             }
-            // East.
-            x = openqueue_xpos + 1;
-            passable_east = map_is_passable(x, openqueue_ypos);
-            if (passable_east) {
-                if (path_set_queued_cost_if_lower(x, openqueue_ypos, cost)) { 
-                    openqueue_push(map_distance(x, openqueue_ypos),
-                                   cost,
-                                   x,
-                                   openqueue_ypos,
-                                   WEST);
-                }
-            }
             // West.
             x = openqueue_xpos - 1;
             passable_west = map_is_passable(x, openqueue_ypos);
@@ -137,6 +125,18 @@ uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t new_dest_x, uint8_t 
                                    EAST);
                 }
             }
+            // East.
+            x = openqueue_xpos + 1;
+            passable_east = map_is_passable(x, openqueue_ypos);
+            if (passable_east) {
+                if (path_set_queued_cost_if_lower(x, openqueue_ypos, cost)) { 
+                    openqueue_push(map_distance(x, openqueue_ypos),
+                                   cost,
+                                   x,
+                                   openqueue_ypos,
+                                   WEST);
+                }
+            }
             
             // Check which diagonal neightbors should be added to the open
             // list. For diagonals we also check that at least one orthogonal
@@ -144,7 +144,6 @@ uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t new_dest_x, uint8_t 
             cost = openqueue_cost + MAP_COST_DIAG;
             
             // Northeast.
-            x = openqueue_xpos + 1;
             y = openqueue_ypos - 1;
             if ((passable_north || passable_east) && map_is_passable(x, y)) {
                 if (path_set_queued_cost_if_lower(x, y, cost)) { 
