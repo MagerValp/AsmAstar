@@ -32,8 +32,8 @@ enum {
 
 void editor_print_cost(void) {
     textcolor(1);
-    gotoxy(25, 9);
-    cprintf("+/-: cost %d ", path_max_cost);
+    gotoxy(25, 8);
+    cprintf("+/-: max %d ", path_max_cost);
 }
 
 void editor_init(void) {
@@ -61,8 +61,8 @@ void editor_init(void) {
     cputsxy(25, 5, "2: select S");
     cputsxy(25, 6, "3: select X");
     cputsxy(25, 7, "4: select Z");
-    cputsxy(25, 8, "return: find");
     editor_print_cost();
+    cputsxy(25, 9, "return: find");
     
     cursor_x = MAP_WIDTH / 2;
     cursor_y = MAP_HEIGHT / 2;
@@ -175,7 +175,7 @@ void editor_path_find(void) {
             gotoxy(0, 24);
             if (len) {
                 textcolor(PATH_COLOR);
-                cprintf("%d steps, cost %d", len, path_cost);
+                cprintf("%d step%s, cost %d", len, len == 1 ? "" : "s", path_cost);
                 for (step = 0; step < len; ++step) {
                     gotoxy(path_x[step] + 2, path_y[step] + 2);
                     cputc('W');
@@ -187,6 +187,7 @@ void editor_path_find(void) {
                 cprintf("no path with cost <= %d", path_max_cost);
             }
             cgetc();
+            cputsxy(0, 0, "               ");
             gotoxy(0, 24);
             cputs("                        ");
             editor_draw_map();

@@ -190,7 +190,7 @@ uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t new_dest_x, uint8_t 
         }
         
         gotoxy(0, 0);
-        cprintf("%d ", openqueue_size);
+        cprintf("open nodes: %d ", openqueue_size);
         
         // Remove the top node from the queue and move on to the next.
         openqueue_delete();
