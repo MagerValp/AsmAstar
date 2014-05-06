@@ -33,7 +33,7 @@ enum {
 void editor_print_cost(void) {
     textcolor(1);
     gotoxy(25, 9);
-    cprintf("+/-: cost %d", path_max_cost);
+    cprintf("+/-: cost %d ", path_max_cost);
 }
 
 void editor_init(void) {
