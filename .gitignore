@@ -1,5 +1,6 @@
 *.o
 *.map
+*.lab
 *.d64
 asmastar.prg
 main.prg

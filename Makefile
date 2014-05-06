@@ -43,12 +43,12 @@ asmastar.prg: main.prg
 	exomizer sfx sys -m 4096 -q -o $@ $^
 
 main.prg: $(OBJS)
-	$(CC) -m asmastar.map -C asmastar.cfg -o $@ $(LDFLAGS) $^
+	$(CC) -m asmastar.map -Ln asmastar.lab -C asmastar.cfg -o $@ $(LDFLAGS) $^
 
 
 clean:
 	rm -f *.o
-	rm -f asmastar.prg main.prg asmastar.map
+	rm -f asmastar.prg main.prg asmastar.map asmastar.lab
 	rm -f asmastar.d64 tmp.d64
 
 
