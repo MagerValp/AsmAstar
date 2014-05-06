@@ -29,6 +29,7 @@ OBJS = \
 	actor.o \
 	path.o \
 	path_came_from.o \
+	path_queued_cost.o \
 	editor.o
 
 

@@ -12,8 +12,6 @@ uint8_t path_y[PATH_MAX];
 uint8_t path_cost;
 uint8_t path_max_cost = 90;
 
-static uint8_t queued_cost[MAP_WIDTH * MAP_HEIGHT];
-
 enum {
     NORTH = 0,
     NORTHEAST,
@@ -65,9 +63,6 @@ bool is_passable(uint8_t x, uint8_t y) {
     return false;
 }
 
-#define get_queued_cost(X, Y) queued_cost[(Y) * MAP_WIDTH + (X)]
-#define set_queued_cost(X, Y, C) queued_cost[(Y) * MAP_WIDTH + (X)] = (C)
-
 uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t new_dest_x, uint8_t new_dest_y) {
     static uint8_t x, y, cost;
     static uint8_t passable_north, passable_east, passable_south, passable_west;
@@ -76,9 +71,9 @@ uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t new_dest_x, uint8_t 
     map_dest_x = new_dest_x;
     map_dest_y = new_dest_y;
     
-    memset(queued_cost, 255, sizeof(queued_cost));
     // Clear the visitation and cost buffers.
     path_clear_came_from();
+    path_clear_queued_cost();
     
     // Start off the open queue with the start node.
     openqueue_init(path_max_cost);
@@ -107,8 +102,8 @@ uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t new_dest_x, uint8_t 
             y = openqueue_ypos - 1;
             passable_north = is_passable(openqueue_xpos, y);
             if (passable_north) {
-                if (get_queued_cost(openqueue_xpos, y) > cost) { 
-                    set_queued_cost(openqueue_xpos, y, cost);
+                if (path_get_queued_cost(openqueue_xpos, y) > cost) { 
+                    path_set_queued_cost(openqueue_xpos, y, cost);
                     openqueue_push(map_distance(openqueue_xpos, y),
                                    cost,
                                    openqueue_xpos,
@@ -120,8 +115,8 @@ uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t new_dest_x, uint8_t 
             y = openqueue_ypos + 1;
             passable_south = is_passable(openqueue_xpos, y);
             if (passable_south) {
-                if (get_queued_cost(openqueue_xpos, y) > cost) { 
-                    set_queued_cost(openqueue_xpos, y, cost);
+                if (path_get_queued_cost(openqueue_xpos, y) > cost) { 
+                    path_set_queued_cost(openqueue_xpos, y, cost);
                     openqueue_push(map_distance(openqueue_xpos, y),
                                    cost,
                                    openqueue_xpos,
@@ -133,8 +128,8 @@ uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t new_dest_x, uint8_t 
             x = openqueue_xpos + 1;
             passable_east = is_passable(x, openqueue_ypos);
             if (passable_east) {
-                if (get_queued_cost(x, openqueue_ypos) > cost) { 
-                    set_queued_cost(x, openqueue_ypos, cost);
+                if (path_get_queued_cost(x, openqueue_ypos) > cost) { 
+                    path_set_queued_cost(x, openqueue_ypos, cost);
                     openqueue_push(map_distance(x, openqueue_ypos),
                                    cost,
                                    x,
@@ -146,8 +141,8 @@ uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t new_dest_x, uint8_t 
             x = openqueue_xpos - 1;
             passable_west = is_passable(x, openqueue_ypos);
             if (passable_west) {
-                if (get_queued_cost(x, openqueue_ypos) > cost) { 
-                    set_queued_cost(x, openqueue_ypos, cost);
+                if (path_get_queued_cost(x, openqueue_ypos) > cost) { 
+                    path_set_queued_cost(x, openqueue_ypos, cost);
                     openqueue_push(map_distance(x, openqueue_ypos),
                                    cost,
                                    x,
@@ -165,8 +160,8 @@ uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t new_dest_x, uint8_t 
             x = openqueue_xpos + 1;
             y = openqueue_ypos - 1;
             if ((passable_north || passable_east) && is_passable(x, y)) {
-                if (get_queued_cost(x, y) > cost) { 
-                    set_queued_cost(x, y, cost);
+                if (path_get_queued_cost(x, y) > cost) { 
+                    path_set_queued_cost(x, y, cost);
                     openqueue_push(map_distance(x, y),
                                    cost,
                                    x,
@@ -177,8 +172,8 @@ uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t new_dest_x, uint8_t 
             // Southeast.
             y = openqueue_ypos + 1;
             if ((passable_south || passable_east) && is_passable(x, y)) {
-                if (get_queued_cost(x, y) > cost) { 
-                    set_queued_cost(x, y, cost);
+                if (path_get_queued_cost(x, y) > cost) { 
+                    path_set_queued_cost(x, y, cost);
                     openqueue_push(map_distance(x, y),
                                    cost,
                                    x,
@@ -189,8 +184,8 @@ uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t new_dest_x, uint8_t 
             // Southwest.
             x = openqueue_xpos - 1;
             if ((passable_south || passable_west) && is_passable(x, y)) {
-                if (get_queued_cost(x, y) > cost) { 
-                    set_queued_cost(x, y, cost);
+                if (path_get_queued_cost(x, y) > cost) { 
+                    path_set_queued_cost(x, y, cost);
                     openqueue_push(map_distance(x, y),
                                    cost,
                                    x,
@@ -201,8 +196,8 @@ uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t new_dest_x, uint8_t 
             // Northwest.
             y = openqueue_ypos - 1;
             if ((passable_north || passable_west) && is_passable(x, y)) {
-                if (get_queued_cost(x, y) > cost) { 
-                    set_queued_cost(x, y, cost);
+                if (path_get_queued_cost(x, y) > cost) { 
+                    path_set_queued_cost(x, y, cost);
                     openqueue_push(map_distance(x, y),
                                    cost,
                                    x,
