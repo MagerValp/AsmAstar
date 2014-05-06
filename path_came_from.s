@@ -5,7 +5,6 @@
 	.export _path_clear_came_from
 	.export _path_get_came_from
 	.export _path_set_came_from
-	.export _path_came_from_buf
 	
 	.import popa, popax
 	.importzp sp
@@ -19,7 +18,7 @@ OPENQUEUE_COLOR =	9
 
 	.align 256
 
-_path_came_from_buf:	.res MAP_WIDTH * MAP_HEIGHT
+visit_buf:	.res MAP_WIDTH * MAP_HEIGHT
 
 	.rodata
 
@@ -27,11 +26,11 @@ _path_came_from_buf:	.res MAP_WIDTH * MAP_HEIGHT
 
 came_from_lo:
   .repeat MAP_HEIGHT, I
-	.byte <(_path_came_from_buf + MAP_WIDTH * I)
+	.byte <(visit_buf + MAP_WIDTH * I)
   .endrepeat
 came_from_hi:
   .repeat MAP_HEIGHT, I
-	.byte >(_path_came_from_buf + MAP_WIDTH * I)
+	.byte >(visit_buf + MAP_WIDTH * I)
   .endrepeat
 
 
@@ -41,8 +40,8 @@ came_from_hi:
 _path_clear_came_from:
 	lda #$ff
 	ldx #0
-:	sta _path_came_from_buf,x
-	sta _path_came_from_buf + MAP_WIDTH * MAP_HEIGHT - 256,x
+:	sta visit_buf,x
+	sta visit_buf + MAP_WIDTH * MAP_HEIGHT - 256,x
 	inx
 	bne :-
 	rts
