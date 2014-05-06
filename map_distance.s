@@ -1,4 +1,5 @@
 	.include "macro.i"
+	.include "map.i"
 	
 	
 	.export _map_distance
@@ -41,6 +42,8 @@ _map_distance:
 	sbc @dmin
 	
 	; Multiply by MAP_COST_ORTH.
+	.assert MAP_COST_ORTH = 5, error, "expected MAP_COST_ORTH to be 5"
+	
 	sta @one		; Multiply by 4 and add 1.
 	asl
 	asl
@@ -49,6 +52,9 @@ _map_distance:
 	adc #$5e
 	sta @dist
 
+	; Multiply by MAP_COST_DIAG.
+	.assert MAP_COST_DIAG = 7, error, "expected MAP_COST_DIAG to be 7"
+	
 	lda @dmin		; Multiplay by 8 and subtract 1.
 	asl
 	asl
@@ -61,28 +67,3 @@ _map_distance:
 	adc #$5e
 	ldx #0
 	rts
-
-
-; uint8_t map_distance(uint8_t start_x, uint8_t start_y) {
-;     static uint8_t dx, dy;
-;     static uint8_t dmin, dmax;
-;     
-;     if (start_x > map_dest_x) {
-;         dx = start_x - map_dest_x;
-;     } else {
-;         dx = map_dest_x - start_x;
-;     }
-;     if (start_y > map_dest_y) {
-;         dy = start_y - map_dest_y;
-;     } else {
-;         dy = map_dest_y - start_y;
-;     }
-;     if (dx > dy) {
-;         dmax = dx;
-;         dmin = dy;
-;     } else {
-;         dmax = dy;
-;         dmin = dx;
-;     }
-;     return dmin * MAP_COST_DIAG + MAP_COST_ORTH * (dmax - dmin);
-; }
