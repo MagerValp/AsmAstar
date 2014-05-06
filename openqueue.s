@@ -18,12 +18,13 @@
 
 	.align 128
 
-prio:	.res 128
-cost:	.res 128
-xpos:	.res 128
-ypos:	.res 128
-dir:	.res 128
-size:	.res 1
+prio:		.res 128
+cost:		.res 128
+xpos:		.res 128
+ypos:		.res 128
+dir:		.res 128
+size:		.res 1
+max_cost:	.res 1
 
 ; Exported names.
 _openqueue_size = 	size
@@ -37,6 +38,9 @@ _openqueue_dir = 	dir
 
 ; Initialize an empty heap.
 _openqueue_init:
+	clc
+	adc #1
+	sta max_cost
 	lda #0
 	sta size
 	rts
@@ -106,6 +110,9 @@ _openqueue_push:
 	iny
 	clc
 	adc (sp),y
+	; Ignore if estimate + cost is larger than or equal to max.
+	cmp max_cost
+	bcs @done
 	sta prio,x
 	
 	inc size
