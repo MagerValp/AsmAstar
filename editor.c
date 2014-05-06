@@ -12,6 +12,7 @@
 #define MAP_COLOR 11
 #define PATH_COLOR 7
 #define BORDER_COLOR 2
+#define ERROR_COLOR 10
 
 
 static uint8_t cursor_x;
@@ -28,6 +29,12 @@ enum {
     CURS_UP
 };
 
+
+void editor_print_cost(void) {
+    textcolor(1);
+    gotoxy(25, 9);
+    cprintf("+/-: cost %d", path_max_cost);
+}
 
 void editor_init(void) {
     clrscr();
@@ -55,6 +62,7 @@ void editor_init(void) {
     cputsxy(25, 6, "3: select X");
     cputsxy(25, 7, "4: select Z");
     cputsxy(25, 8, "return: find");
+    editor_print_cost();
     
     cursor_x = MAP_WIDTH / 2;
     cursor_y = MAP_HEIGHT / 2;
@@ -164,16 +172,23 @@ void editor_path_find(void) {
         if (!map_get(cursor_x, cursor_y)) {
             len = path_find(actor_xpos[editor_actor], actor_ypos[editor_actor],
                             cursor_x, cursor_y);
-            textcolor(PATH_COLOR);
-            for (step = 0; step < len; ++step) {
-                gotoxy(path_x[step] + 2, path_y[step] + 2);
-                cputc('W');
-            }
-            cgetc();
+            gotoxy(0, 24);
             if (len) {
+                textcolor(PATH_COLOR);
+                cprintf("%d steps, cost %d", len, path_cost);
+                for (step = 0; step < len; ++step) {
+                    gotoxy(path_x[step] + 2, path_y[step] + 2);
+                    cputc('W');
+                }
                 actor_xpos[editor_actor] = path_x[0];
                 actor_ypos[editor_actor] = path_y[0];
+            } else {
+                textcolor(ERROR_COLOR);
+                cprintf("no path with cost <= %d", path_max_cost);
             }
+            cgetc();
+            gotoxy(0, 24);
+            cputs("                        ");
             editor_draw_map();
         }
     }
@@ -247,6 +262,20 @@ void editor_main(void) {
             
             case CH_ENTER:
             editor_path_find();
+            break;
+            
+            case '+':
+            if (path_max_cost <= 250) {
+                path_max_cost += 5;
+            }
+            editor_print_cost();
+            break;
+            
+            case '-':
+            if (path_max_cost >= 5) {
+                path_max_cost -= 5;
+            }
+            editor_print_cost();
             break;
         }
     }

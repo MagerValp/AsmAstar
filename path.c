@@ -11,6 +11,8 @@
 
 uint8_t path_x[PATH_MAX];
 uint8_t path_y[PATH_MAX];
+uint8_t path_cost;
+uint8_t path_max_cost = 150;
 
 static uint8_t came_from[MAP_WIDTH * MAP_HEIGHT];
 static uint8_t queued_cost[MAP_WIDTH * MAP_HEIGHT];
@@ -119,114 +121,116 @@ uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t new_dest_x, uint8_t 
         if (not_visited(openqueue_xpos, openqueue_ypos)) {
             set_came_from(openqueue_xpos, openqueue_ypos, openqueue_dir);
             if (openqueue_xpos == map_dest_x && openqueue_ypos == map_dest_y) {
+                path_cost = openqueue_cost;
                 return reconstruct_path(start_x, start_y);
-            }
-            if (cost > MAP_COST_DIAG * PATH_MAX) {
-                return 0;
             }
             // Check orthogonal.
             cost = openqueue_cost + MAP_COST_ORTH;
-            // North.
-            y = openqueue_ypos - 1;
-            passable_north = is_passable(openqueue_xpos, y);
-            if (passable_north) {
-                if (get_queued_cost(openqueue_xpos, y) > cost) { 
-                    set_queued_cost(openqueue_xpos, y, cost);
-                    openqueue_push(map_distance(openqueue_xpos, y),
-                                   cost,
-                                   openqueue_xpos,
-                                   y,
-                                   SOUTH);
+            if (cost <= path_max_cost) {
+                // North.
+                y = openqueue_ypos - 1;
+                passable_north = is_passable(openqueue_xpos, y);
+                if (passable_north) {
+                    if (get_queued_cost(openqueue_xpos, y) > cost) { 
+                        set_queued_cost(openqueue_xpos, y, cost);
+                        openqueue_push(map_distance(openqueue_xpos, y),
+                                       cost,
+                                       openqueue_xpos,
+                                       y,
+                                       SOUTH);
+                    }
                 }
-            }
-            // South.
-            y = openqueue_ypos + 1;
-            passable_south = is_passable(openqueue_xpos, y);
-            if (passable_south) {
-                if (get_queued_cost(openqueue_xpos, y) > cost) { 
-                    set_queued_cost(openqueue_xpos, y, cost);
-                    openqueue_push(map_distance(openqueue_xpos, y),
-                                   cost,
-                                   openqueue_xpos,
-                                   y,
-                                   NORTH);
+                // South.
+                y = openqueue_ypos + 1;
+                passable_south = is_passable(openqueue_xpos, y);
+                if (passable_south) {
+                    if (get_queued_cost(openqueue_xpos, y) > cost) { 
+                        set_queued_cost(openqueue_xpos, y, cost);
+                        openqueue_push(map_distance(openqueue_xpos, y),
+                                       cost,
+                                       openqueue_xpos,
+                                       y,
+                                       NORTH);
+                    }
                 }
-            }
-            // East.
-            x = openqueue_xpos + 1;
-            passable_east = is_passable(x, openqueue_ypos);
-            if (passable_east) {
-                if (get_queued_cost(x, openqueue_ypos) > cost) { 
-                    set_queued_cost(x, openqueue_ypos, cost);
-                    openqueue_push(map_distance(x, openqueue_ypos),
-                                   cost,
-                                   x,
-                                   openqueue_ypos,
-                                   WEST);
+                // East.
+                x = openqueue_xpos + 1;
+                passable_east = is_passable(x, openqueue_ypos);
+                if (passable_east) {
+                    if (get_queued_cost(x, openqueue_ypos) > cost) { 
+                        set_queued_cost(x, openqueue_ypos, cost);
+                        openqueue_push(map_distance(x, openqueue_ypos),
+                                       cost,
+                                       x,
+                                       openqueue_ypos,
+                                       WEST);
+                    }
                 }
-            }
-            // West.
-            x = openqueue_xpos - 1;
-            passable_west = is_passable(x, openqueue_ypos);
-            if (passable_west) {
-                if (get_queued_cost(x, openqueue_ypos) > cost) { 
-                    set_queued_cost(x, openqueue_ypos, cost);
-                    openqueue_push(map_distance(x, openqueue_ypos),
-                                   cost,
-                                   x,
-                                   openqueue_ypos,
-                                   EAST);
+                // West.
+                x = openqueue_xpos - 1;
+                passable_west = is_passable(x, openqueue_ypos);
+                if (passable_west) {
+                    if (get_queued_cost(x, openqueue_ypos) > cost) { 
+                        set_queued_cost(x, openqueue_ypos, cost);
+                        openqueue_push(map_distance(x, openqueue_ypos),
+                                       cost,
+                                       x,
+                                       openqueue_ypos,
+                                       EAST);
+                    }
                 }
             }
             // Check diagonal.
             cost = openqueue_cost + MAP_COST_DIAG;
-            // Northeast.
-            x = openqueue_xpos + 1;
-            y = openqueue_ypos - 1;
-            if ((passable_north || passable_east) && is_passable(x, y)) {
-                if (get_queued_cost(x, y) > cost) { 
-                    set_queued_cost(x, y, cost);
-                    openqueue_push(map_distance(x, y),
-                                   cost,
-                                   x,
-                                   y,
-                                   SOUTHWEST);
+            if (cost <= path_max_cost) {
+                // Northeast.
+                x = openqueue_xpos + 1;
+                y = openqueue_ypos - 1;
+                if ((passable_north || passable_east) && is_passable(x, y)) {
+                    if (get_queued_cost(x, y) > cost) { 
+                        set_queued_cost(x, y, cost);
+                        openqueue_push(map_distance(x, y),
+                                       cost,
+                                       x,
+                                       y,
+                                       SOUTHWEST);
+                    }
                 }
-            }
-            // Southeast.
-            y = openqueue_ypos + 1;
-            if ((passable_south || passable_east) && is_passable(x, y)) {
-                if (get_queued_cost(x, y) > cost) { 
-                    set_queued_cost(x, y, cost);
-                    openqueue_push(map_distance(x, y),
-                                   cost,
-                                   x,
-                                   y,
-                                   NORTHWEST);
+                // Southeast.
+                y = openqueue_ypos + 1;
+                if ((passable_south || passable_east) && is_passable(x, y)) {
+                    if (get_queued_cost(x, y) > cost) { 
+                        set_queued_cost(x, y, cost);
+                        openqueue_push(map_distance(x, y),
+                                       cost,
+                                       x,
+                                       y,
+                                       NORTHWEST);
+                    }
                 }
-            }
-            // Southwest.
-            x = openqueue_xpos - 1;
-            if ((passable_south || passable_west) && is_passable(x, y)) {
-                if (get_queued_cost(x, y) > cost) { 
-                    set_queued_cost(x, y, cost);
-                    openqueue_push(map_distance(x, y),
-                                   cost,
-                                   x,
-                                   y,
-                                   NORTHEAST);
+                // Southwest.
+                x = openqueue_xpos - 1;
+                if ((passable_south || passable_west) && is_passable(x, y)) {
+                    if (get_queued_cost(x, y) > cost) { 
+                        set_queued_cost(x, y, cost);
+                        openqueue_push(map_distance(x, y),
+                                       cost,
+                                       x,
+                                       y,
+                                       NORTHEAST);
+                    }
                 }
-            }
-            // Northwest.
-            y = openqueue_ypos - 1;
-            if ((passable_north || passable_west) && is_passable(x, y)) {
-                if (get_queued_cost(x, y) > cost) { 
-                    set_queued_cost(x, y, cost);
-                    openqueue_push(map_distance(x, y),
-                                   cost,
-                                   x,
-                                   y,
-                                   SOUTHEAST);
+                // Northwest.
+                y = openqueue_ypos - 1;
+                if ((passable_north || passable_west) && is_passable(x, y)) {
+                    if (get_queued_cost(x, y) > cost) { 
+                        set_queued_cost(x, y, cost);
+                        openqueue_push(map_distance(x, y),
+                                       cost,
+                                       x,
+                                       y,
+                                       SOUTHEAST);
+                    }
                 }
             }
         }
