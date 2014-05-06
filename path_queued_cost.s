@@ -3,10 +3,10 @@
 	
 	
 	.export _path_clear_queued_cost
-	.export _path_get_queued_cost
-	.export _path_set_queued_cost
+	.export _path_set_queued_cost_if_lower
 	
 	.import popa, popax
+	.importzp ptr1
 	
 	
 	.bss
@@ -42,33 +42,25 @@ _path_clear_queued_cost:
 	rts
 
 
-; uint8_t __fastcall__ path_get_queued_cost(uint8_t x, uint8_t y);
-_path_get_queued_cost:
-	tay
-	lda queued_cost_lo,y
-	sta @cost_ptr
-	lda queued_cost_hi,y
-	sta @cost_ptr + 1
-	jsr popa
-	tax
-@cost_ptr = * + 1
-	lda @cost_ptr,x
-	ldx #0
-	rts
-	
-
-; void __fastcall__ path_set_queued_cost(uint8_t x, uint8_t y, uint8_t cost)
-_path_set_queued_cost:
+; uint8_t __fastcall__ path_set_queued_cost_if_lower(uint8_t x, uint8_t y, uint8_t cost)
+_path_set_queued_cost_if_lower:
 	sta @cost
 	
 	jsr popax
 	tay
 	lda queued_cost_lo,y
-	sta @cost_ptr
+	sta ptr1
 	lda queued_cost_hi,y
-	sta @cost_ptr + 1
+	sta ptr1 + 1
+	txa
+	tay
 @cost = * + 1
 	lda #$5e
-@cost_ptr = * + 1
-	sta @cost_ptr,x
+	cmp (ptr1),y
+	bcc :+
+	lda #0
+	tax
+	rts
+:	sta (ptr1),y
+	ldx #$ff
 	rts
