@@ -8,7 +8,6 @@
 	.import _map_dest_y
 	
 	.import popa
-	.importzp sp
 	
 	
 	.code

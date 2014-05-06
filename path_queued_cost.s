@@ -7,7 +7,6 @@
 	.export _path_set_queued_cost
 	
 	.import popa, popax
-	.importzp sp
 	
 	
 	.bss

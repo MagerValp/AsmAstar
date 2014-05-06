@@ -7,7 +7,6 @@
 	.export _path_set_came_from
 	
 	.import popa, popax
-	.importzp sp
 	
 
 

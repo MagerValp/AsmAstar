@@ -6,7 +6,6 @@
 	.import _map_line
 	
 	.import popa
-	.importzp sp
 	
 	
 	.code
