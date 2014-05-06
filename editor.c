@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <conio.h>
 #include <time.h>
+#include "benchmark.h"
 #include "map.h"
 #include "actor.h"
 #include "path.h"
@@ -170,26 +171,32 @@ void editor_path_find(void) {
     
     if (actor_at(cursor_x, cursor_y) == ACTOR_NONE) {
         if (!map_get(cursor_x, cursor_y)) {
+            benchmark_init();
+            benchmark_start();
             len = path_find(actor_xpos[editor_actor], actor_ypos[editor_actor],
                             cursor_x, cursor_y);
-            gotoxy(0, 24);
+            benchmark_stop();
             if (len) {
                 textcolor(PATH_COLOR);
-                cprintf("%d step%s, cost %d", len, len == 1 ? "" : "s", path_cost);
                 for (step = 0; step < len; ++step) {
                     gotoxy(path_x[step] + 2, path_y[step] + 2);
                     cputc('W');
                 }
                 actor_xpos[editor_actor] = path_x[0];
                 actor_ypos[editor_actor] = path_y[0];
+                gotoxy(0, 24);
+                cprintf("%d step%s, cost %d", len, len == 1 ? "" : "s", path_cost);
             } else {
                 textcolor(ERROR_COLOR);
+                gotoxy(0, 24);
                 cprintf("no path with cost <= %d", path_max_cost);
             }
+            cprintf(", %d.%02d s", benchmark_result() / 100, benchmark_result() % 100);
+            benchmark_exit();
+            
             cgetc();
-            cputsxy(0, 0, "               ");
-            gotoxy(0, 24);
-            cputs("                        ");
+            cclearxy(0, 0, 15);
+            cclearxy(0, 24, 39);
             editor_draw_map();
         }
     }

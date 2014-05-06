@@ -22,6 +22,7 @@ all: main.prg
 
 OBJS = \
 	main.o \
+	benchmark.o \
 	openqueue.o \
 	map.o \
 	map_get.o \
