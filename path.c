@@ -71,8 +71,9 @@ uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t new_dest_x, uint8_t 
     openqueue_push(map_distance(start_x, start_y), 0, start_x, start_y, NOT_VISITED);
     // Loop as long as there are nodes to explore.
     while (openqueue_size) {
-        // Avoid visiting nodes twice.
-        if (path_get_came_from(openqueue_xpos, openqueue_ypos) == NOT_VISITED) {
+        // Ignore node if we've already visited with a lower cost.
+        cost = path_get_queued_cost(openqueue_xpos, openqueue_ypos);
+        if (openqueue_cost <= cost) {
             // Mark node as visited with the direction from which we came.
             path_set_came_from(openqueue_xpos, openqueue_ypos, openqueue_dir);
             // Check if we've arrived at our destination.
