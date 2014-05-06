@@ -17,10 +17,12 @@
 
 	.align 128
 
+; The parallel heap trees.
 prio:		.res 128
 cost:		.res 128
 xpos:		.res 128
 ypos:		.res 128
+
 size:		.res 1
 max_cost:	.res 1
 
