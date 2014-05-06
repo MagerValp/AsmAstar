@@ -265,7 +265,7 @@ void editor_main(void) {
             break;
             
             case '+':
-            if (path_max_cost <= 250) {
+            if (path_max_cost <= 245) {
                 path_max_cost += 5;
             }
             editor_print_cost();

@@ -4,7 +4,7 @@
 
 #include <stdint.h>
 
-#define PATH_MAX 51
+#define PATH_MAX 50
 
 extern uint8_t path_x[PATH_MAX];
 extern uint8_t path_y[PATH_MAX];
