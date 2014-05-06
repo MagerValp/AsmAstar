@@ -108,24 +108,38 @@ uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t new_dest_x, uint8_t 
     static uint8_t x, y, cost;
     static uint8_t passable_north, passable_east, passable_south, passable_west;
     
+    // Set the global map destination variables.
     map_dest_x = new_dest_x;
     map_dest_y = new_dest_y;
     
     memset(came_from, NOT_VISITED, sizeof(came_from));
     memset(queued_cost, 255, sizeof(queued_cost));
+    
     textcolor(OPENQUEUE_COLOR);
     
+    // Start off the open queue with the start node.
     openqueue_init(path_max_cost);
     openqueue_push(map_distance(start_x, start_y), 0, start_x, start_y, NOT_VISITED);
+    // Loop as long as there are nodes to explore.
     while (openqueue_size) {
+        // Avoid visiting nodes twice.
         if (not_visited(openqueue_xpos, openqueue_ypos)) {
             set_came_from(openqueue_xpos, openqueue_ypos, openqueue_dir);
+            // Mark node as visited with the direction from which we came.
+            // Check if we've arrived at our destination.
             if (openqueue_xpos == map_dest_x && openqueue_ypos == map_dest_y) {
+                // Store the final path cost.
                 path_cost = openqueue_cost;
+                // Reconstruct the path and return the length.
                 return reconstruct_path(start_x, start_y);
             }
-            // Check orthogonal.
+            
+            // Check which orthogonal neightbors should be added to the open
+            // list. We only add nodes that are passable and which have a
+            // lower cost than any previously added nodes at the same
+            // coordinates.
             cost = openqueue_cost + MAP_COST_ORTH;
+            
             // North.
             y = openqueue_ypos - 1;
             passable_north = is_passable(openqueue_xpos, y);
@@ -178,8 +192,12 @@ uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t new_dest_x, uint8_t 
                                    EAST);
                 }
             }
-            // Check diagonal.
+            
+            // Check which diagonal neightbors should be added to the open
+            // list. For diagonals we also check that at least one orthogonal
+            // neighbor is passable to avoid walking through diagonal walls.
             cost = openqueue_cost + MAP_COST_DIAG;
+            
             // Northeast.
             x = openqueue_xpos + 1;
             y = openqueue_ypos - 1;
@@ -230,8 +248,11 @@ uint8_t path_find(uint8_t start_x, uint8_t start_y, uint8_t new_dest_x, uint8_t 
                 }
             }
         }
+        
         gotoxy(0, 0);
         cprintf("%d ", openqueue_size);
+        
+        // Remove the top node from the queue and move on to the next.
         openqueue_delete();
     }
     return 0;
